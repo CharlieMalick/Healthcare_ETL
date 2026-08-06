@@ -1,8 +1,0 @@
-synthea/build/
-synthea/.gradle/
-__pycache__/
-*.pyc
-venv/
-.env
-*.db
-synthea/
