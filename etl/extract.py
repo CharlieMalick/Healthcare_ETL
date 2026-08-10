@@ -1,19 +1,29 @@
-import json
-#text, written with JavaScript object notation. 
-import os
-#methods for interacting with the operating system
+import pandas as pd
 
-#synthea -> output -> fhir -> patient data
-with os.scandir('synthea/output/fhir') as entries:
-    for entry in entries:
-        if entry.is_file():
-            if "Information" in entry.name:
-                continue  # skip this file, move to the next one in the loop
-            with open(entry.path, 'r') as f:
-                bundle = json.load(f)
+allergies = pd.read_csv('synthea/output/csv/allergies.csv')
+careplans = pd.read_csv('synthea/output/csv/careplans.csv')
+claims_transactions = pd.read_csv('synthea/output/csv/claims_transactions.csv')
+claims = pd.read_csv('synthea/output/csv/claims.csv')
+conditions = pd.read_csv('synthea/output/csv/conditions.csv')
+devices = pd.read_csv('synthea/output/csv/devices.csv')
+encounters = pd.read_csv('synthea/output/csv/encounters.csv')
+imaging_studies = pd.read_csv('synthea/output/csv/imaging_studies.csv')
+immunizations = pd.read_csv('synthea/output/csv/immunizations.csv')
+medications = pd.read_csv('synthea/output/csv/medications.csv')
+observations = pd.read_csv('synthea/output/csv/observations.csv')
+patients = pd.read_csv('synthea/output/csv/patients.csv')
+payer_transitions = pd.read_csv('synthea/output/csv/payer_transitions.csv')
+payers = pd.read_csv('synthea/output/csv/payers.csv')
+procedures = pd.read_csv('synthea/output/csv/procedures.csv')
+providers = pd.read_csv('synthea/output/csv/providers.csv')
+supplies = pd.read_csv('synthea/output/csv/supplies.csv')
 
-entries_list = bundle['entry']
-for item in entries_list:
-    resource = item['resource']['resourceType']
 
-print(resource)
+patient_dict = {"allergies": allergies, "careplans": careplans, "claims_transactions": claims_transactions, "claims": claims, 
+                "conditions": conditions, "devices": devices, "encounters": encounters, "imaging_studies": imaging_studies, 
+                "immunizations": immunizations, "medications": medications, "observations": observations, 
+                "patients": patients, "payer_transitions": payer_transitions, 
+                "payers": payers, "procedures": procedures, "providers": providers, "supplies": supplies}
+
+for name, table in patient_dict.items():
+    print(name, table.shape)
