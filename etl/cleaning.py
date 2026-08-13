@@ -48,8 +48,9 @@ medications['STOP'] = pd.to_datetime(medications['STOP'])
 
 immunizations['DATE'] = pd.to_datetime(immunizations['DATE'])
 
-print(patients.dtypes)
-print(encounters.dtypes)
-print(conditions.dtypes)
-print(medications.dtypes)
-print(immunizations.dtypes)
+death_or_today = patients['DEATHDATE'].fillna(pd.Timestamp.now())
+patients['AGE'] = (death_or_today - patients['BIRTHDATE']).dt.days / 365.25
+patients['AGE'] = patients['AGE'].round().astype(int)
+
+print(patients.columns)
+print(patients['AGE'])
