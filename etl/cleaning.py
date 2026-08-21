@@ -1,56 +1,45 @@
-from evals import patient_dict
+from etl.evals import patient_dict
 import pandas as pd
 
-#the main sets are patients, encounters, conditions, medications, immunizations
 patients = patient_dict['patients']
 encounters = patient_dict['encounters']
 conditions = patient_dict['conditions']
 medications = patient_dict['medications']
 immunizations = patient_dict['immunizations']
 
-#patients: 
-#['Id', 'BIRTHDATE', 'DEATHDATE', 'SSN', 'DRIVERS', 'PASSPORT', 'PREFIX', 'FIRST', 'MIDDLE', 'LAST', 'SUFFIX', 'MAIDEN', 
-# 'MARITAL','RACE', 'ETHNICITY', 'GENDER', 'BIRTHPLACE', 'ADDRESS', 'CITY', 'STATE', 'COUNTY', 'FIPS', 'ZIP', 
-# 'LAT', 'LON', 'HEALTHCARE_EXPENSES', 'HEALTHCARE_COVERAGE', 'INCOME']
+def calculate_age(birthdate, deathdate=None):
+    reference_date = deathdate if pd.notna(deathdate) else pd.Timestamp.now()
+    age = (reference_date - birthdate).days / 365.25
+    return round(age)
 
-#encounters
-# ['Id', 'START', 'STOP', 'PATIENT', 'ORGANIZATION', 'PROVIDER', 'PAYER', 'ENCOUNTERCLASS', 'CODE', 'DESCRIPTION', 'BASE_ENCOUNTER_COST', 
-# 'TOTAL_CLAIM_COST', 'PAYER_COVERAGE', 'REASONCODE', 'REASONDESCRIPTION']
 
-#conditions
-# ['START', 'STOP', 'PATIENT', 'ENCOUNTER', 'SYSTEM', 'CODE', 'DESCRIPTION']
+def add_is_deceased(df, deathdate_column='DEATHDATE'):
+    df['IS_DECEASED'] = df[deathdate_column].notna()
+    return df
 
-#medications
-#['START', 'STOP', 'PATIENT', 'PAYER', 'ENCOUNTER', 'CODE', 'DESCRIPTION', 
-# 'BASE_COST', 'PAYER_COVERAGE', 'DISPENSES', 'TOTALCOST', 'REASONCODE', 'REASONDESCRIPTION']
 
-#immunizations
-# ['DATE', 'PATIENT', 'ENCOUNTER', 'CODE', 'DESCRIPTION', 'BASE_COST']
+def add_is_active(df, stop_column='STOP'):
+    df['IS_ACTIVE'] = df[stop_column].isna()
+    return df
 
-#the plan for cleaning is to start with patients, then clean the remainders
-#print(patients.isna().sum())
-# when cleaning, i noted that EVERY column in suffix was empty and maiden was also 3/4 empty, so i'm dropping them
 patients = patients.drop(columns=['SUFFIX', 'MAIDEN', 'PREFIX', 'FIPS'])
-patients['IS_DECEASED'] = patients['DEATHDATE'].notna()
+patients = add_is_deceased(patients)
 patients['BIRTHDATE'] = pd.to_datetime(patients['BIRTHDATE'])
 patients['DEATHDATE'] = pd.to_datetime(patients['DEATHDATE'])
+patients['AGE'] = patients.apply(lambda row: calculate_age(row['BIRTHDATE'], row['DEATHDATE']), axis=1)
 
 encounters['START'] = pd.to_datetime(encounters['START'])
 encounters['STOP'] = pd.to_datetime(encounters['STOP'])
 
-conditions['IS_ACTIVE'] = conditions['STOP'].notna()
+conditions = add_is_active(conditions)
 conditions['START'] = pd.to_datetime(conditions['START'])
 conditions['STOP'] = pd.to_datetime(conditions['STOP'])
 
-medications['IS_ACTIVE'] = medications['STOP'].notna()
+medications = add_is_active(medications)
 medications['START'] = pd.to_datetime(medications['START'])
 medications['STOP'] = pd.to_datetime(medications['STOP'])
 
 immunizations['DATE'] = pd.to_datetime(immunizations['DATE'])
-
-death_or_today = patients['DEATHDATE'].fillna(pd.Timestamp.now())
-patients['AGE'] = (death_or_today - patients['BIRTHDATE']).dt.days / 365.25
-patients['AGE'] = patients['AGE'].round().astype(int)
 
 print(patients.columns)
 print(patients['AGE'])

@@ -28,7 +28,7 @@ is structurally sound and ready to load into Postgres.
 """
 
 import great_expectations as gx
-from cleaning import patients, encounters, conditions, medications, immunizations
+from etl.cleaning import patients, encounters, conditions, medications, immunizations
 
 context = gx.get_context()
 batch = context.data_sources.add_pandas("patients_source").read_dataframe(patients)

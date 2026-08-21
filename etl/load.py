@@ -1,10 +1,20 @@
-from cleaning import patients, encounters, conditions, medications, immunizations
+from etl.cleaning import patients, encounters, conditions, medications, immunizations
 from sqlalchemy import create_engine
 
-engine = create_engine('postgresql://postgres:yourpassword@127.0.0.1:5433/healthcare')
+def get_engine(user='postgres', password='yourpassword', host='127.0.0.1', port='5433', dbname='healthcare'):
+    """Builds and returns a SQLAlchemy engine connected to the Postgres database."""
+    connection_string = f'postgresql://{user}:{password}@{host}:{port}/{dbname}'
+    return create_engine(connection_string)
 
-patients.to_sql('patients', engine, if_exists='replace', index=False)
-encounters.to_sql('encounters', engine, if_exists='replace', index=False)
-conditions.to_sql('conditions', engine, if_exists='replace', index=False)
-medications.to_sql('medications', engine, if_exists='replace', index=False)
-immunizations.to_sql('immunizations', engine, if_exists='replace', index=False)
+
+def load_table_to_db(df, table_name, engine):
+    """Writes a DataFrame to the database as a table, replacing it if it already exists."""
+    df.to_sql(table_name, engine, if_exists='replace', index=False)
+
+engine = get_engine()
+
+load_table_to_db(patients, 'patients', engine)
+load_table_to_db(encounters, 'encounters', engine)
+load_table_to_db(conditions, 'conditions', engine)
+load_table_to_db(medications, 'medications', engine)
+load_table_to_db(immunizations, 'immunizations', engine)
