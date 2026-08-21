@@ -78,7 +78,6 @@ result8 = conditions_batch.validate(
 )
 print(result8.success)
 
-# medications - new batch needed
 medications_batch = context.data_sources.add_pandas("medications_source").read_dataframe(medications)
 
 result9 = medications_batch.validate(
@@ -91,7 +90,6 @@ result10 = medications_batch.validate(
 )
 print(result10.success)
 
-# immunizations - new batch needed
 immunizations_batch = context.data_sources.add_pandas("immunizations_source").read_dataframe(immunizations)
 
 result11 = immunizations_batch.validate(
