@@ -135,7 +135,9 @@ Healthcare-ETL/
 
 ## Dashboard
 
-*(Tableau dashboard link and screenshots — coming soon)*
+The dashboard connects to the validated core tables (patients, encounters, conditions, medications) and presents five views: most common diagnoses, patient age distribution, encounter volume by type, deceased vs. living patient breakdown, and most prescribed medications.
+
+**Live dashboard:** [Synthetic Healthcare ETL — General Patient Overview](https://public.tableau.com/app/profile/sidharth.rao7805/viz/SyntheticHealthcareETLGeneralPatientOverview/Dashboard1)
 
 ## Notes
 
